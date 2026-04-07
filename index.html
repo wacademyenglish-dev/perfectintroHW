@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WOLF LABS | Homework: The Perfect Intro A1</title>
+    <!-- Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- WOLF LABS MOBILE ENGINE (NETWORKING EDITION) --- */
+        :root {
+            --bg-base: #0f172a; 
+            --brand-main: #8b5cf6; /* Vibrant Violet */
+            --accent: #0ea5e9; /* Cyan */
+            --correct: #10b981; 
+            --incorrect: #ef4444; 
+            --text-main: #f8fafc;
+            --text-dim: #cbd5e1;
+            --glass-bg: rgba(15, 23, 42, 0.9); 
+            --glass-border: rgba(255, 255, 255, 0.1); 
+            --font-display: 'Montserrat', sans-serif;
+            --font-body: 'Outfit', sans-serif;
+            --font-code: 'Fira Code', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        button, input { font-family: var(--font-body); outline: none; }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow: hidden;
+            height: 100vh; width: 100vw;
+            display: flex; flex-direction: column;
+            position: fixed; 
+        }
+
+        /* BACKGROUND */
+        .bg-image { position: absolute; inset: 0; background-image: url('https://images.unsplash.com/photo-1515169067868-5387ec356754?q=80&w=1000&auto=format&fit=crop'); background-size: cover; background-position: center; opacity: 0.15; filter: grayscale(50%) brightness(0.7); z-index: 1;}
+        .bg-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,23,42,0.8) 0%, rgba(15,23,42,1) 100%); z-index: 2;}
+
+        /* TOP BAR (MOBILE OPTIMIZED) */
+        .top-bar { position: relative; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(15,23,42,0.95); border-bottom: 1px solid var(--glass-border); }
+        .logo { font-family: var(--font-display); font-size: 1.2rem; color: #fff; display: flex; align-items: center; gap: 8px;}
+        .logo i { color: var(--brand-main); }
+        .score-badge { background: rgba(139, 92, 246, 0.1); border: 1px solid var(--brand-main); padding: 5px 12px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; color: #fff; display: flex; align-items: center; gap: 5px;}
+        .score-badge i { color: var(--brand-main); }
+        
+        .progress-container { width: 100%; height: 6px; background: #1e293b; position: relative; z-index: 100; }
+        .progress-bar { height: 100%; width: 0%; background: var(--brand-main); transition: 0.4s ease; box-shadow: 0 0 10px var(--brand-main); }
+
+        /* MAIN AREA */
+        .main-container { flex: 1; position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; overflow-x: hidden;}
+        
+        .slide { width: 100%; max-width: 500px; display: none; flex-direction: column; align-items: center; opacity: 0; transform: translateX(20px); transition: 0.4s ease; }
+        .slide.active { display: flex; opacity: 1; transform: translateX(0); }
+
+        .glass-card {
+            background: var(--glass-bg); border: 1px solid var(--glass-border); border-top: 3px solid var(--brand-main);
+            padding: 30px 25px; border-radius: 24px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+        }
+
+        /* TYPOGRAPHY */
+        h1 { font-family: var(--font-display); font-size: 2.2rem; color: #fff; line-height: 1.1; margin-bottom: 15px; text-transform: uppercase; }
+        h2 { font-family: var(--font-display); font-size: 1.4rem; color: var(--brand-main); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;}
+        p { font-size: 1.1rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 25px; width: 100%;}
+
+        /* BUTTONS (TOUCH FRIENDLY) */
+        .input-name { width: 100%; padding: 15px; border-radius: 12px; border: 2px solid var(--glass-border); background: rgba(0,0,0,0.5); color: #fff; font-size: 1.2rem; text-align: center; margin-bottom: 20px; transition: 0.3s;}
+        .input-name:focus { border-color: var(--brand-main); box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);}
+        
+        .btn-main { width: 100%; padding: 18px; border: none; border-radius: 14px; font-weight: 800; font-size: 1.2rem; text-transform: uppercase; cursor: pointer; transition: 0.2s; background: var(--brand-main); color: #fff; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);}
+        .btn-main:active { transform: scale(0.96); }
+
+        .mcq-btn { width: 100%; padding: 18px 20px; background: #1e293b; border: 2px solid var(--glass-border); border-radius: 14px; color: #fff; font-size: 1.1rem; font-weight: 600; text-align: left; cursor: pointer; transition: 0.2s; margin-bottom: 15px; display: flex; align-items: center; gap: 15px;}
+        .mcq-btn i { font-size: 1.4rem; color: var(--brand-main); width: 30px; text-align: center;}
+        .mcq-btn:active { transform: scale(0.98); background: #2a3b52;}
+        .mcq-btn.correct { background: var(--correct); border-color: var(--correct); color: #000;}
+        .mcq-btn.correct i { color: #000; }
+        .mcq-btn.incorrect { background: var(--incorrect); border-color: var(--incorrect); color: #fff; animation: shake 0.4s;}
+        .mcq-btn.incorrect i { color: #fff; }
+
+        /* BUILD SENTENCE */
+        .drop-zone { min-height: 80px; border: 2px dashed rgba(255,255,255,0.3); border-radius: 15px; padding: 15px; width: 100%; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center; background: rgba(0,0,0,0.3);}
+        .drop-zone.success { border-color: var(--correct); background: rgba(16, 185, 129, 0.1); }
+        .word-bank { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; width: 100%; }
+        .word-chip { padding: 12px 20px; background: #1e293b; border: 1px solid var(--glass-border); border-radius: 10px; color: #fff; font-weight: 700; font-size: 1.1rem; cursor: pointer; transition: 0.2s;}
+        .word-chip:active { transform: scale(0.9); }
+        .word-chip.used { opacity: 0; pointer-events: none; }
+
+        /* PHONE UI */
+        .phone-ui { width: 100%; border: 8px solid #1e293b; border-radius: 30px; background: #000; overflow: hidden; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.5);}
+        .phone-header { background: #0f172a; padding: 15px; font-weight: 800; font-size: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px;}
+        .phone-chat { padding: 20px; display: flex; flex-direction: column; gap: 15px; min-height: 180px; }
+        .msg { padding: 12px 18px; border-radius: 15px; max-width: 85%; font-size: 1rem; font-weight: 500;}
+        .msg.received { background: #334155; color: #fff; align-self: flex-start; border-bottom-left-radius: 2px;}
+        .msg.sent { background: var(--brand-main); color: #fff; align-self: flex-end; border-bottom-right-radius: 2px; display: none; animation: popIn 0.3s;}
+
+        /* FEEDBACK OVERLAY */
+        .feedback-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(5px);}
+        .feedback-overlay.show { opacity: 1; pointer-events: auto; }
+        .feedback-card { background: #0f172a; border-radius: 24px; padding: 40px; text-align: center; width: 90%; max-width: 350px; transform: scale(0.8); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 2px solid var(--correct); box-shadow: 0 20px 50px rgba(0,0,0,0.8);}
+        .feedback-overlay.show .feedback-card { transform: scale(1); }
+
+        @keyframes popIn { from { opacity: 0; transform: scale(0.9) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+    </style>
+</head>
+<body>
+
+    <div class="bg-image"></div>
+    <div class="bg-overlay"></div>
+
+    <div class="top-bar">
+        <div class="logo"><i class="fa-solid fa-handshake"></i> HW MISSION</div>
+        <div class="score-badge" id="score-display"><i class="fa-solid fa-star"></i> 0</div>
+    </div>
+    <div class="progress-container"><div class="progress-bar" id="p-bar"></div></div>
+
+    <main class="main-container">
+
+        <!-- 1. COVER -->
+        <div class="slide active" id="slide-0">
+            <div class="glass-card">
+                <i class="fa-solid fa-users" style="font-size: 4rem; color: var(--brand-main); margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5));"></i>
+                <h1>INTRO<br>RECALL</h1>
+                <p>Welcome to your homework! Complete the missions to earn stars.</p>
+                <input type="text" id="student-name" class="input-name" placeholder="Your Name" autocomplete="off">
+                <button class="btn-main" onclick="startHomework()">START MISSION <i class="fa-solid fa-play"></i></button>
+            </div>
+        </div>
+
+        <!-- 2. VOCAB: MULTIPLE CHOICE -->
+        <div class="slide" id="slide-1">
+            <div class="glass-card">
+                <h2><i class="fa-solid fa-magnifying-glass"></i> VOCAB CHECK</h2>
+                <p>What is a good phrase to say when you finish an introduction?</p>
+                <div style="width: 100%;">
+                    <button class="mcq-btn" onclick="checkMCQ(this, false)"><i class="fa-solid fa-comment-slash"></i> Good morning to you.</button>
+                    <button class="mcq-btn" onclick="checkMCQ(this, false)"><i class="fa-solid fa-house"></i> I am from Canada.</button>
+                    <button class="mcq-btn" onclick="checkMCQ(this, true)"><i class="fa-solid fa-handshake-angle"></i> Nice to meet you.</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. GRAMMAR: TO BE (I am) -->
+        <div class="slide" id="slide-2">
+            <div class="glass-card">
+                <h2><i class="fa-solid fa-code"></i> GRAMMAR</h2>
+                <p>Choose the correct option to complete the sentence.</p>
+                <div style="background: rgba(0,0,0,0.5); padding: 20px; border-radius: 15px; border: 1px dashed var(--glass-border); width: 100%; margin-bottom: 20px;">
+                    <span style="font-size: 1.4rem; color: #fff; font-weight: 700;">"I _____ from Canada."</span>
+                </div>
+                <div style="width: 100%; display: flex; gap: 15px;">
+                    <button class="btn-main" style="background: #1e293b; color: #fff; border: 2px solid var(--glass-border);" onclick="checkMCQ(this, true, true)">am</button>
+                    <button class="btn-main" style="background: #1e293b; color: #fff; border: 2px solid var(--glass-border);" onclick="checkMCQ(this, false, true)">is</button>
+                    <button class="btn-main" style="background: #1e293b; color: #fff; border: 2px solid var(--glass-border);" onclick="checkMCQ(this, false, true)">are</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. GRAMMAR: TO BE (is) -->
+        <div class="slide" id="slide-3">
+            <div class="glass-card">
+                <h2><i class="fa-solid fa-code"></i> GRAMMAR</h2>
+                <p>Choose the correct option for your name.</p>
+                <div style="background: rgba(0,0,0,0.5); padding: 20px; border-radius: 15px; border: 1px dashed var(--glass-border); width: 100%; margin-bottom: 20px;">
+                    <span style="font-size: 1.4rem; color: #fff; font-weight: 700;">"My name _____ Leon."</span>
+                </div>
+                <div style="width: 100%; display: flex; gap: 15px;">
+                    <button class="btn-main" style="background: #1e293b; color: #fff; border: 2px solid var(--glass-border);" onclick="checkMCQ(this, false, true)">am</button>
+                    <button class="btn-main" style="background: #1e293b; color: #fff; border: 2px solid var(--glass-border);" onclick="checkMCQ(this, true, true)">is</button>
+                    <button class="btn-main" style="background: #1e293b; color: #fff; border: 2px solid var(--glass-border);" onclick="checkMCQ(this, false, true)">are</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. UNJUMBLE SENTENCE -->
+        <div class="slide" id="slide-4">
+            <div class="glass-card">
+                <h2><i class="fa-solid fa-hammer"></i> BUILD IT</h2>
+                <p>Tap the words to build a perfect introduction.</p>
+                <div class="drop-zone" id="dz-1"></div>
+                <div class="word-bank" id="wb-1">
+                    <div class="word-chip" onclick="moveChip(this, 'dz-1', 'wb-1', 'I,am,a,student,and,I,like,sports.')">sports.</div>
+                    <div class="word-chip" onclick="moveChip(this, 'dz-1', 'wb-1', 'I,am,a,student,and,I,like,sports.')">am</div>
+                    <div class="word-chip" onclick="moveChip(this, 'dz-1', 'wb-1', 'I,am,a,student,and,I,like,sports.')">student</div>
+                    <div class="word-chip" onclick="moveChip(this, 'dz-1', 'wb-1', 'I,am,a,student,and,I,like,sports.')">I</div>
+                    <div class="word-chip" onclick="moveChip(this, 'dz-1', 'wb-1', 'I,am,a,student,and,I,like,sports.')">like</div>
+                    <div class="word-chip" onclick="moveChip(this, 'dz-1', 'wb-1', 'I,am,a,student,and,I,like,sports.')">a</div>
+                    <div class="word-chip" onclick="moveChip(this, 'dz-1', 'wb-1', 'I,am,a,student,and,I,like,sports.')">and</div>
+                    <div class="word-chip" onclick="moveChip(this, 'dz-1', 'wb-1', 'I,am,a,student,and,I,like,sports.')">I</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. TEXTING SCENARIO -->
+        <div class="slide" id="slide-5">
+            <div class="glass-card">
+                <h2><i class="fa-brands fa-whatsapp"></i> TEXTING</h2>
+                <p>Reply to your new friend.</p>
+                <div class="phone-ui">
+                    <div class="phone-header"><i class="fa-solid fa-user-circle" style="color:var(--brand-main); font-size:1.5rem;"></i> New Friend</div>
+                    <div class="phone-chat" id="chat-box">
+                        <div class="msg received">Hi! Nice to meet you. Where are you from?</div>
+                        <div class="msg sent" id="sent-msg"></div>
+                    </div>
+                </div>
+                <div style="width: 100%; display: flex; flex-direction: column; gap: 10px;" id="phone-opts">
+                    <button class="mcq-btn" style="margin:0;" onclick="sendText(this, 'I am from Brazil.', true)">I am from Brazil.</button>
+                    <button class="mcq-btn" style="margin:0;" onclick="sendText(this, 'I is from Brazil.', false)">I is from Brazil.</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. FINISH -->
+        <div class="slide" id="slide-6">
+            <div class="glass-card" style="border-top-color: var(--correct);">
+                <i class="fa-solid fa-shield-check" style="font-size: 5rem; color: var(--correct); margin-bottom: 20px; filter: drop-shadow(0 0 20px var(--correct));"></i>
+                <h1 style="color: var(--correct);">MISSION<br>CLEARED</h1>
+                <p style="font-size: 1.2rem; color: #fff; font-weight: 700; margin-bottom: 5px;"><span class="dyn-name">Student</span>, fantastic job!</p>
+                <p>You completed the Intro recall.</p>
+                
+                <div style="background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); padding: 20px; border-radius: 15px; width: 100%; margin-bottom: 30px;">
+                    <span style="font-family: var(--font-code); color: var(--text-dim); display: block; margin-bottom: 10px;">FINAL SCORE</span>
+                    <span style="font-size: 3rem; color: var(--brand-main); font-weight: 900;" id="final-score">⭐ 5/5</span>
+                </div>
+
+                <button class="btn-main" style="background: var(--correct); color: #000; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);" onclick="alert('Mission data saved! You can close this screen.')"><i class="fa-solid fa-paper-plane"></i> SUBMIT TO TEACHER</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FEEDBACK POPUP -->
+    <div class="feedback-overlay" id="feedback">
+        <div class="feedback-card">
+            <i class="fa-solid fa-star" style="font-size: 4rem; color: var(--brand-main); margin-bottom: 15px; filter: drop-shadow(0 0 20px var(--brand-main));"></i>
+            <h2 style="color: var(--correct); font-size: 1.8rem; margin-bottom: 10px;">CORRECT!</h2>
+            <p style="color: #fff; margin:0;" id="fb-msg">+1 Star earned</p>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 7;
+        let score = 0;
+        let studentName = "Student";
+
+        function updateProgress() {
+            const pct = (currentSlide / (totalSlides - 1)) * 100;
+            document.getElementById('p-bar').style.width = pct + '%';
+        }
+
+        function showSlide(index) {
+            document.querySelectorAll('.slide').forEach((el, i) => {
+                if (i === index) {
+                    el.classList.add('active');
+                } else {
+                    el.classList.remove('active');
+                }
+            });
+            updateProgress();
+        }
+
+        function nextSlideDelay() {
+            setTimeout(() => {
+                currentSlide++;
+                showSlide(currentSlide);
+            }, 1500);
+        }
+
+        function showFeedback() {
+            const fb = document.getElementById('feedback');
+            fb.classList.add('show');
+            setTimeout(() => {
+                fb.classList.remove('show');
+            }, 1300);
+        }
+
+        function startHomework() {
+            const input = document.getElementById('student-name');
+            if (input.value.trim() !== "") studentName = input.value.trim();
+            document.querySelectorAll('.dyn-name').forEach(el => el.innerText = studentName);
+            currentSlide++;
+            showSlide(currentSlide);
+        }
+
+        function checkMCQ(btn, isCorrect, isGrammar = false) {
+            const parent = btn.parentElement;
+            if(parent.classList.contains('locked')) return;
+
+            if (isCorrect) {
+                btn.classList.add('correct');
+                if(isGrammar) {
+                    btn.style.background = 'var(--correct)';
+                    btn.style.borderColor = 'var(--correct)';
+                    btn.style.color = '#000';
+                }
+                parent.classList.add('locked');
+                score++;
+                document.getElementById('score-display').innerHTML = `<i class="fa-solid fa-star"></i> ${score}`;
+                showFeedback();
+                nextSlideDelay();
+            } else {
+                btn.classList.add('incorrect');
+                if(isGrammar) {
+                    btn.style.background = 'var(--incorrect)';
+                    btn.style.borderColor = 'var(--incorrect)';
+                }
+                setTimeout(() => {
+                    btn.classList.remove('incorrect');
+                    if(isGrammar) {
+                        btn.style.background = '#1e293b';
+                        btn.style.borderColor = 'var(--glass-border)';
+                    }
+                }, 500);
+            }
+        }
+
+        // Sentence Builder
+        let builtSentence = [];
+        function moveChip(chip, dzId, wbId, targetStr) {
+            if(chip.classList.contains('used')) return;
+            
+            const targetArr = targetStr.split(',');
+            const dz = document.getElementById(dzId);
+            
+            const newChip = document.createElement('div');
+            newChip.className = 'word-chip';
+            newChip.style.background = 'var(--brand-main)';
+            newChip.style.color = '#fff';
+            newChip.style.borderColor = 'var(--brand-main)';
+            newChip.innerText = chip.innerText;
+            
+            // Generate unique ID to link back
+            const uniqueId = 'chip_' + Math.random().toString(36).substr(2, 9);
+            chip.id = uniqueId;
+            newChip.dataset.source = uniqueId;
+
+            // Logic to remove
+            newChip.onclick = function() {
+                if(dz.classList.contains('success')) return;
+                dz.removeChild(this);
+                document.getElementById(this.dataset.source).classList.remove('used');
+                builtSentence = Array.from(dz.children).map(c => c.innerText);
+            };
+
+            dz.appendChild(newChip);
+            chip.classList.add('used');
+            builtSentence.push(chip.innerText);
+
+            // Check
+            if(builtSentence.length === targetArr.length) {
+                const isMatch = builtSentence.join('') === targetArr.join('');
+                if(isMatch) {
+                    dz.classList.add('success');
+                    Array.from(dz.children).forEach(c => {
+                        c.style.background = 'var(--correct)';
+                        c.style.borderColor = 'var(--correct)';
+                        c.style.color = '#000';
+                        c.onclick = null;
+                    });
+                    score++;
+                    document.getElementById('score-display').innerHTML = `<i class="fa-solid fa-star"></i> ${score}`;
+                    showFeedback();
+                    nextSlideDelay();
+                } else {
+                    dz.style.borderColor = 'var(--incorrect)';
+                    dz.style.animation = 'shake 0.4s';
+                    setTimeout(() => {
+                        dz.innerHTML = '';
+                        dz.style.borderColor = 'rgba(255,255,255,0.3)';
+                        dz.style.animation = '';
+                        document.getElementById(wbId).querySelectorAll('.word-chip').forEach(c => c.classList.remove('used'));
+                        builtSentence = [];
+                    }, 1000);
+                }
+            }
+        }
+
+        // Texting Game
+        function sendText(btn, text, isCorrect) {
+            if(document.getElementById('phone-opts').classList.contains('locked')) return;
+
+            if(isCorrect) {
+                const msg = document.getElementById('sent-msg');
+                msg.innerText = text;
+                msg.style.display = 'block';
+                document.getElementById('phone-opts').classList.add('locked');
+                document.getElementById('phone-opts').style.opacity = '0.5';
+                
+                score++;
+                document.getElementById('score-display').innerHTML = `<i class="fa-solid fa-star"></i> ${score}`;
+                document.getElementById('final-score').innerText = `⭐ ${score}/5`;
+                showFeedback();
+                nextSlideDelay();
+            } else {
+                btn.classList.add('incorrect');
+                setTimeout(() => btn.classList.remove('incorrect'), 500);
+            }
+        }
+        
+        // Initialize logic
+        updateProgress();
+    </script>
+</body>
+</html>
